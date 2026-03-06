@@ -46,7 +46,7 @@ let tabRotationInterval = null;
 let idleTimeout = null;
 let userIsActive = false;
 let congratsShown = false;
-const TAB_NAMES = ['parties', 'interactive-map', 'constituencies', 'provinces'];
+const TAB_NAMES = ['parties', 'constituencies', 'provinces', 'interactive-map'];
 let echarts3DMap = null;
 let geoJsonData = null;
 
@@ -781,7 +781,7 @@ async function renderInteractiveMap(data) {
             show: true,
             backgroundColor: 'rgba(10, 14, 26, 0.9)',
             borderColor: 'rgba(255,255,255,0.1)',
-            textStyle: { color: '#fff', fontFamily: 'Inter' },
+            textStyle: { color: '#fff', fontFamily: 'Outfit' },
             formatter: (params) => {
                 const lp = params.data?.leadingParty || 'Pending/Tied';
                 const count = params.data?.value || 0;

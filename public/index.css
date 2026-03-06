@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 /* ===== CSS Custom Properties ===== */
 :root {
@@ -41,7 +41,7 @@
     --radius-xl: 20px;
     --radius-full: 9999px;
 
-    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
 
     --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -1443,15 +1443,61 @@ body {
         display: none;
     }
 
+    .main {
+        padding-bottom: 90px;
+    }
+
     .nav-tabs {
-        flex-direction: column;
-        gap: 8px;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        flex-direction: row;
+        gap: 4px;
+        background: rgba(10, 14, 26, 0.95);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        z-index: 1000;
+        margin: 0;
+        padding: 10px 6px;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 0;
+        box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.6);
     }
 
     .nav-tab {
-        width: 100%;
-        font-size: 1rem;
-        padding: 12px;
+        width: auto;
+        flex: 1;
+        font-size: 0.7rem;
+        padding: 8px 2px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        border: none;
+        background: transparent;
+        text-align: center;
+        opacity: 0.7;
+        line-height: 1.1;
+    }
+
+    .nav-tab.active {
+        box-shadow: none !important;
+        background: rgba(255, 255, 255, 0.1) !important;
+        border-radius: 12px;
+        transform: none !important;
+        opacity: 1;
+        border: none !important;
+    }
+
+    .nav-tab:hover {
+        transform: none;
+        background: transparent;
+    }
+
+    .nav-tab::before {
+        display: none !important;
     }
 }
 
