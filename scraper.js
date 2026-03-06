@@ -173,6 +173,15 @@ async function scrapeElectionData() {
             voteCounts.push(parseNumber($pop(this).text()));
         });
 
+        // Scrape actual candidate photo URLs from <img> elements
+        var candidateImgs = [];
+        card.find('img[src*="/candidates/"]').each(function () {
+            var src = $pop(this).attr('src') || '';
+            if (candidateImgs.indexOf(src) === -1) {
+                candidateImgs.push(src);
+            }
+        });
+
         var allProfiles = [];
         card.find('a[href*="/profile/"]').each(function () {
             var href = $pop(this).attr('href') || '';
@@ -183,6 +192,16 @@ async function scrapeElectionData() {
             }
         });
 
+        // Deduplicate profiles
+        var uniqueProfiles = [];
+        var seenProfileIds = {};
+        for (var pi = 0; pi < allProfiles.length; pi++) {
+            if (!seenProfileIds[allProfiles[pi].id]) {
+                seenProfileIds[allProfiles[pi].id] = true;
+                uniqueProfiles.push(allProfiles[pi]);
+            }
+        }
+
         var partyNames2 = [];
         card.find('a[href*="/party/"]').each(function () {
             var name = $pop(this).text().trim();
@@ -190,16 +209,13 @@ async function scrapeElectionData() {
         });
 
         var candidates = [];
-        var seenIds2 = {};
-        for (var j = 1; j <= 3 && j < allProfiles.length; j++) {
-            var p = allProfiles[j];
-            if (seenIds2[p.id]) continue;
-            seenIds2[p.id] = true;
+        for (var j = 0; j < uniqueProfiles.length && j < 3; j++) {
+            var p = uniqueProfiles[j];
             candidates.push({
                 name: p.name,
-                party: partyNames2[j - 1] || '',
-                votes: (voteCounts[j] !== undefined) ? voteCounts[j] : 0,
-                photoUrl: 'https://assets-generalelection2082.ekantipur.com/candidates/candidate-' + p.id + '.png'
+                party: partyNames2[j] || '',
+                votes: (voteCounts[j + 1] !== undefined) ? voteCounts[j + 1] : 0,
+                photoUrl: candidateImgs[j] || ''
             });
         }
 

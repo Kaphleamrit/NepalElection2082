@@ -1010,11 +1010,12 @@ body {
 
 /* Active states with unique colors */
 .nav-tab.active {
-    color: white;
+    color: #ffffff !important;
     font-weight: 700;
     transform: translateY(-2px);
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
     z-index: 1;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .nav-tab.active::before {
