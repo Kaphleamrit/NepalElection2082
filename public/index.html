@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nepal Election 2082 — Live Dashboard</title>
+    <meta name="description"
+        content="Real-time Federal Parliament Election 2082 results dashboard. Track party standings, candidate votes, and province-wise results live.">
+    <link rel="stylesheet" href="index.css">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗳️</text></svg>">
+</head>
+
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Loading election data...</div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-inner">
+            <a href="/" class="logo">
+                <div class="logo-icon">🗳️</div>
+                <div class="logo-text">Nepal <span>Election</span> 2082</div>
+            </a>
+            <div class="header-meta">
+                <div class="live-badge">
+                    <div class="live-dot"></div>
+                    Live Results
+                </div>
+                <div class="last-updated" id="lastUpdated">--</div>
+                <button class="refresh-btn" id="refreshBtn" onclick="refreshData()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5">
+                        <polyline points="23 4 23 10 17 10"></polyline>
+                        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                    </svg>
+                    Refresh
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main" id="mainContent">
+        <!-- Hero Stats -->
+        <section class="hero-stats" id="heroStats" aria-label="Summary statistics">
+            <div class="stat-card">
+                <div class="stat-label">Total Seats</div>
+                <div class="stat-value" id="totalSeats">165</div>
+                <div class="stat-detail">FPTP Constituencies</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Leading Party</div>
+                <div class="stat-value" id="leadingPartySeats">--</div>
+                <div class="stat-detail" id="leadingPartyName">--</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Total Elected</div>
+                <div class="stat-value" id="totalElected">--</div>
+                <div class="stat-detail">Results Declared</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Parties</div>
+                <div class="stat-value" id="totalPartiesCount">67</div>
+                <div class="stat-detail">Competing</div>
+            </div>
+        </section>
+
+        <!-- Seat Distribution Bar -->
+        <section aria-label="Seat distribution">
+            <div class="section-header" style="margin-top: 0;">
+                <h2 class="section-title"><span class="icon">📊</span> Seat Distribution</h2>
+            </div>
+            <div class="chart-container">
+                <div class="seat-distribution" id="seatDistribution"></div>
+                <div class="seat-legend" id="seatLegend"></div>
+            </div>
+        </section>
+
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs" id="mainNavTabs">
+            <button class="nav-tab active" data-tab="parties" onclick="switchTab('parties')">🏛️ Party Results</button>
+            <button class="nav-tab" data-tab="constituencies" onclick="switchTab('constituencies')">⚔️ Constituency
+                Battle</button>
+            <button class="nav-tab" data-tab="provinces" onclick="switchTab('provinces')">🗺️ By Province</button>
+        </div>
+
+        <!-- Tab: Party Results -->
+        <div class="tab-content active" id="tab-parties">
+            <div class="party-grid" id="partyGrid"></div>
+        </div>
+
+        <!-- Tab: Constituency Battle -->
+        <div class="tab-content" id="tab-constituencies">
+            <div class="constituency-controls">
+                <div class="search-box">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="M21 21l-4.35-4.35"></path>
+                    </svg>
+                    <input type="text" id="constituencySearch" placeholder="Search constituency or candidate..."
+                        oninput="filterConstituencies()">
+                </div>
+                <div class="filter-pills" id="filterPills">
+                    <button class="filter-pill active" onclick="filterByStatus('all')">All</button>
+                    <button class="filter-pill" onclick="filterByStatus('counting')">🔴 Counting</button>
+                    <button class="filter-pill" onclick="filterByStatus('pending')">⏳ Pending</button>
+                </div>
+            </div>
+            <div class="constituency-grid" id="constituencyGrid"></div>
+        </div>
+
+        <!-- Tab: Province Results -->
+        <div class="tab-content" id="tab-provinces">
+            <div class="province-tabs" id="provinceTabs"></div>
+            <div id="provinceContents"></div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p class="footer-text">
+            Data sourced from <a href="https://election.ekantipur.com/?lng=eng" target="_blank"
+                rel="noopener">election.ekantipur.com</a><br>
+            Nepal Federal Parliament Election 2082 &middot; Built for clarity and accessibility
+        </p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
