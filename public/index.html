@@ -6,11 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- Primary Meta Tags -->
-    <title>Nepal Election 2082 Results — Live Vote Count & Constituency Results | nepelec</title>
+    <title>Nepal Election Results 2082 Live | Real-Time Vote Count – nepelec</title>
     <meta name="description"
-        content="Live Nepal Election 2082 (2026) results dashboard. Real-time vote counting, constituency battles, province-wise results, and party standings for Nepal's Federal Parliament Election. नेपाल निर्वाचन २०८२ नतिजा।">
+        content="Live Nepal Election Results 2082 (2026). Real-time vote count for all 165 constituencies, 3406 candidates, 7 provinces and 66+ parties. Data from Election Commission of Nepal.">
     <meta name="keywords"
-        content="Nepal Election 2082, Nepal Election 2026, Nepali Election, Nepal Election Results, निर्वाचन २०८२, नेपाल निर्वाचन, Federal Parliament Election Nepal, Nepal vote count, constituency results Nepal, province results Nepal, RSP election, UML election, Nepali Congress election, live election results Nepal, Nepal chunav, Nepal nirbachan 2082, election counting Nepal">
+        content="Nepal election 2082, Nepal election results 2026, live vote count, HoR election, प्रतिनिधि सभा निर्वाचन, Nepal Election Results, निर्वाचन २०८२, nepalvotes, nepelec">
     <meta name="author" content="nepelec">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     <!-- PWA & Architecture Enhancements -->
@@ -34,20 +34,23 @@
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://nepelec.vercel.app/">
-    <meta property="og:title" content="Nepal Election 2082 — Live Results & Vote Count Dashboard">
+    <meta property="og:title" content="Nepal Election Results 2082 Live | Real-Time Vote Count">
     <meta property="og:description"
-        content="Track Nepal's Federal Parliament Election 2082 (2026) results live. Real-time constituency battles, party standings, and province-wise vote counts. नेपाल निर्वाचन २०८२ नतिजा।">
+        content="Live Nepal Election Results 2082 (2026). Real-time vote count for all 165 constituencies, 3406 candidates, 7 provinces and 66+ parties. Data from Election Commission of Nepal.">
     <meta property="og:image" content="https://nepelec.vercel.app/og-image.png">
-    <meta property="og:site_name" content="nepelec — Nepal Election 2082">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Nepal Election Results 2082 — Live Vote Count">
+    <meta property="og:site_name" content="nepelec">
     <meta property="og:locale" content="en_US">
     <meta property="og:locale:alternate" content="ne_NP">
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:url" content="https://nepelec.vercel.app/">
-    <meta name="twitter:title" content="Nepal Election 2082 — Live Results Dashboard">
+    <meta name="twitter:title" content="Nepal Election Results 2082 Live | Real-Time Vote Count">
     <meta name="twitter:description"
-        content="Real-time Nepal Election 2082 (2026) results. Live vote counting, constituency battles & party standings.">
+        content="Live Nepal Election Results 2082 (2026). Real-time vote count for all 165 constituencies, 3406 candidates, 7 provinces and 66+ parties. Data from Election Commission of Nepal.">
     <meta name="twitter:image" content="https://nepelec.vercel.app/og-image.png">
 
     <!-- Additional SEO -->
@@ -62,7 +65,7 @@
         "@context": "https://schema.org",
         "@type": "WebSite",
         "name": "nepelec — Nepal Election 2082 Live Results",
-        "alternateName": ["Nepal Election 2082", "Nepali Election 2026", "निर्वाचन २०८२ नतिजा"],
+        "alternateName": ["Nepal Election 2082", "Nepali Election 2026", "NepalVotes"],
         "url": "https://nepelec.vercel.app/",
         "description": "Live dashboard for Nepal Federal Parliament Election 2082 (2026) results with real-time vote counting, constituency battles, and province-wise party standings.",
         "inLanguage": ["en", "ne"],
@@ -73,28 +76,27 @@
     }
     </script>
 
-    <!-- Structured Data: LiveBlogPosting for real-time content -->
+    <!-- Structured Data: LiveBlogPosting and Event -->
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
-        "@type": "LiveBlogPosting",
-        "headline": "Nepal Federal Parliament Election 2082 — Live Results",
-        "description": "Real-time live results for Nepal's Federal Parliament Election 2082 (2026 AD). Tracking all 165 FPTP constituencies with live vote counts.",
-        "url": "https://nepelec.vercel.app/",
-        "coverageStartTime": "2026-03-05T07:00:00+05:45",
-        "coverageEndTime": "2026-03-07T23:59:00+05:45",
-        "about": {
-            "@type": "Event",
-            "name": "Nepal Federal Parliament Election 2082",
-            "startDate": "2026-03-05",
-            "location": {
-                "@type": "Country",
-                "name": "Nepal"
-            }
-        },
-        "inLanguage": "en"
+        "@type": "Event",
+        "name": "Nepal House of Representatives General Election 2082",
+        "description": "Nepal's House of Representatives (Pratinidhi Sabha) General Election 2082, covering 165 FPTP constituencies, 3406 candidates, and 7 provinces. Results tracked in real-time.",
+        "startDate": "2026-03-05",
+        "endDate": "2026-03-05",
+        "eventStatus": "https://schema.org/EventScheduled",
+        "image": "https://nepelec.vercel.app/og-image.png",
+        "location": {
+            "@type": "Country",
+            "name": "Nepal"
+        }
     }
     </script>
+
+    <!-- External Libraries (ECharts for 3D Map) -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts-gl@2.0.9/dist/echarts-gl.min.js"></script>
 
     <!-- Styles & Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -194,14 +196,29 @@
         <!-- Navigation Tabs -->
         <div class="nav-tabs" id="mainNavTabs">
             <button class="nav-tab active" data-tab="parties" onclick="switchTab('parties')">🏛️ Party Results</button>
+            <button class="nav-tab" data-tab="interactive-map" onclick="switchTab('interactive-map')">🗺️ 3D
+                Map</button>
             <button class="nav-tab" data-tab="constituencies" onclick="switchTab('constituencies')">⚔️ Constituency
                 Battle</button>
-            <button class="nav-tab" data-tab="provinces" onclick="switchTab('provinces')">🗺️ By Province</button>
+            <button class="nav-tab" data-tab="provinces" onclick="switchTab('provinces')">📈 By Province</button>
         </div>
 
         <!-- Tab: Party Results -->
         <div class="tab-content active" id="tab-parties">
             <div class="party-grid" id="partyGrid"></div>
+        </div>
+
+        <!-- Tab: Interactive 3D Map -->
+        <div class="tab-content" id="tab-interactive-map" style="padding: 0;">
+            <div class="map-container-wrapper"
+                style="position: relative; width: 100%; height: 600px; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); background: rgba(0,0,0,0.2);">
+                <div id="echartsMap" style="width: 100%; height: 100%;"></div>
+                <div id="mapLoader" class="loading-spinner"
+                    style="position:absolute; top:50%; left:50%; margin:-20px 0 0 -20px; border-top-color: var(--accent-blue); display: none;">
+                </div>
+            </div>
+            <p style="text-align: center; color: var(--text-secondary); margin-top: 15px; font-size: 0.85rem;">Interact
+                to rotate • Hover over districts for leading party info</p>
         </div>
 
         <!-- Tab: Constituency Battle -->

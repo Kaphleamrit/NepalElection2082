@@ -46,7 +46,9 @@ let tabRotationInterval = null;
 let idleTimeout = null;
 let userIsActive = false;
 let congratsShown = false;
-const TAB_NAMES = ['parties', 'constituencies', 'provinces'];
+const TAB_NAMES = ['parties', 'interactive-map', 'constituencies', 'provinces'];
+let echarts3DMap = null;
+let geoJsonData = null;
 
 // ===== Data Fetching =====
 async function fetchElectionData() {
@@ -124,8 +126,17 @@ function switchTab(tabName) {
     document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
 
-    document.querySelector(`.nav-tab[data-tab="${tabName}"]`).classList.add('active');
-    document.getElementById(`tab-${tabName}`).classList.add('active');
+    const tabEl = document.querySelector(`.nav-tab[data-tab="${tabName}"]`);
+    if (tabEl) tabEl.classList.add('active');
+
+    const contentEl = document.getElementById(`tab-${tabName}`);
+    if (contentEl) contentEl.classList.add('active');
+
+    // Handle Echarts canvas resize trigger when shown
+    if (tabName === 'interactive-map') {
+        if (echarts3DMap) echarts3DMap.resize();
+        if (currentData) renderInteractiveMap(currentData);
+    }
 
     // Reset auto-rotation when user manually switches
     resetIdleTimer();
@@ -164,6 +175,11 @@ function renderDashboard(data) {
     renderConstituencies(data);
     renderProvinces(data);
     updateTimestamp(data);
+
+    // Update map silently if already active
+    if (document.getElementById('tab-interactive-map').classList.contains('active')) {
+        renderInteractiveMap(data);
+    }
 }
 
 // ===== Hero Stats =====
@@ -696,3 +712,122 @@ document.addEventListener('DOMContentLoaded', () => {
     initApp();
     startTabRotation();
 });
+
+// ===== Interactive 3D Map (ECharts GL) =====
+async function renderInteractiveMap(data) {
+    const mapContainer = document.getElementById('echartsMap');
+    const mapLoader = document.getElementById('mapLoader');
+    if (!mapContainer || !window.echarts) return;
+
+    if (!echarts3DMap) {
+        echarts3DMap = echarts.init(mapContainer);
+        window.addEventListener('resize', () => { if (echarts3DMap) echarts3DMap.resize(); });
+    }
+
+    if (!geoJsonData) {
+        mapLoader.style.display = 'block';
+        try {
+            const res = await fetch('assets/nepal-districts.json');
+            geoJsonData = await res.json();
+            echarts.registerMap('nepal', geoJsonData);
+        } catch (err) {
+            console.error('Failed to load map geojson', err);
+            mapLoader.style.display = 'none';
+            return;
+        }
+        mapLoader.style.display = 'none';
+    }
+
+    // Build map series data matching parsed districts with the constituency dataset
+    const mapSeriesData = geoJsonData.features.map(f => {
+        const dName = f.properties.DISTRICT || f.properties.name || '';
+
+        // Find which party is leading in this district by checking string similarity with constituencies
+        const districtConstituencies = data.constituencyResults.filter(c =>
+            c.constituency.toUpperCase().includes(dName.toUpperCase()) ||
+            dName.toUpperCase().includes(c.constituency.split('-')[0].toUpperCase())
+        );
+
+        let leadingParty = 'Unknown';
+        let leaderColor = 'rgba(255,255,255, 0.1)';
+        let winCount = 0;
+
+        if (districtConstituencies.length > 0) {
+            // Pick the most common leading party in this district block
+            const tally = {};
+            districtConstituencies.forEach(c => {
+                if (c.leadingParty) tally[c.leadingParty] = (tally[c.leadingParty] || 0) + 1;
+            });
+            let max = 0;
+            for (let p in tally) {
+                if (tally[p] > max) { max = tally[p]; leadingParty = p; winCount = max; }
+            }
+            if (PARTY_COLORS[leadingParty]) leaderColor = PARTY_COLORS[leadingParty];
+        }
+
+        return {
+            name: dName,
+            value: winCount,
+            leadingParty: leadingParty,
+            itemStyle: {
+                color: leaderColor,
+                opacity: 0.85
+            }
+        };
+    });
+
+    const option = {
+        tooltip: {
+            show: true,
+            backgroundColor: 'rgba(10, 14, 26, 0.9)',
+            borderColor: 'rgba(255,255,255,0.1)',
+            textStyle: { color: '#fff', fontFamily: 'Inter' },
+            formatter: (params) => {
+                const lp = params.data?.leadingParty || 'Pending/Tied';
+                const count = params.data?.value || 0;
+                return `
+                    <div style="font-weight:700; font-size:1.1em; margin-bottom:4px;">${params.name} District</div>
+                    <div style="font-size:0.9em; display:flex; align-items:center; gap:6px;">
+                        <div style="width:10px;height:10px;border-radius:50%;background:${params.data?.itemStyle?.color}"></div>
+                        Leader: <strong>${PARTY_SHORT[lp] || lp}</strong>
+                    </div>
+                `;
+            }
+        },
+        series: [{
+            type: 'map3D',
+            map: 'nepal',
+            shading: 'realistic',
+            realisticMaterial: {
+                roughness: 0.4,
+                metalness: 0.1
+            },
+            light: {
+                main: { intensity: 1.2, shadow: true, shadowQuality: 'high', alpha: 30, beta: 10 },
+                ambient: { intensity: 0.6 }
+            },
+            itemStyle: {
+                borderColor: 'rgba(255,255,255,0.3)',
+                borderWidth: 0.4
+            },
+            emphasis: {
+                label: { show: true, textStyle: { color: '#fff', fontSize: 13, backgroundColor: 'rgba(0,0,0,0.5)', padding: 4, borderRadius: 4 } },
+                itemStyle: { opacity: 1, borderColor: '#fff' }
+            },
+            data: mapSeriesData,
+            viewControl: {
+                autoRotate: true,
+                autoRotateSpeed: 4,
+                alpha: 35,
+                beta: -15,
+                distance: 90,
+                minDistance: 40,
+                maxDistance: 140,
+                panMouseButton: 'left',
+                rotateMouseButton: 'right',
+            }
+        }]
+    };
+
+    echarts3DMap.setOption(option, true);
+}
