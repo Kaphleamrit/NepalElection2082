@@ -816,7 +816,7 @@ async function renderInteractiveMap(data) {
         try {
             const res = await fetch('assets/nepal-districts.json');
             geoJsonData = await res.json();
-            echarts.registerMap('nepal', geoJsonData);
+            echarts.registerMap('nepal', geoJsonData, { nameProperty: 'DISTRICT' });
         } catch (err) {
             console.error('Failed to load map geojson', err);
             mapLoader.style.display = 'none';
