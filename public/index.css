@@ -1452,16 +1452,69 @@ body {
 }
 
 @media (max-width: 480px) {
+    .header {
+        padding: 4px 0;
+        background: rgba(10, 14, 26, 0.9);
+    }
+
+    .logo-icon {
+        width: 28px;
+        height: 28px;
+    }
+
+    .logo-text {
+        font-size: 0.95rem;
+    }
+
     .hero-stats {
         grid-template-columns: 1fr 1fr;
+        gap: 6px;
+        margin-bottom: 8px;
     }
 
     .stat-card {
-        padding: 14px 16px;
+        padding: 8px 10px;
+    }
+
+    .stat-label {
+        font-size: 0.65rem;
     }
 
     .stat-value {
-        font-size: 1.3rem;
+        font-size: 1.1rem;
+    }
+
+    .stat-detail {
+        font-size: 0.65rem;
+        margin-top: 2px;
+    }
+
+    .section-header {
+        margin-top: 4px;
+        margin-bottom: 4px;
+    }
+
+    .section-title {
+        font-size: 0.9rem;
+        gap: 6px;
+    }
+
+    .chart-container {
+        padding: 8px;
+        margin-top: 4px;
+    }
+
+    .seat-distribution {
+        height: 18px;
+        margin-bottom: 6px;
+    }
+
+    .seat-legend {
+        gap: 4px;
+    }
+
+    .legend-item {
+        font-size: 0.6rem;
     }
 
     .last-updated {
@@ -1469,7 +1522,7 @@ body {
     }
 
     .main {
-        padding-bottom: 90px;
+        padding: 8px 12px 90px;
     }
 
     .nav-tabs {
