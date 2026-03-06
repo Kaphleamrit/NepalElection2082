@@ -180,56 +180,33 @@ async function scrapeElectionData() {
         // Capitalize first letter of district
         district = district.charAt(0).toUpperCase() + district.slice(1);
 
-        var voteCounts = [];
-        card.find('.vote-count p').each(function () {
-            voteCounts.push(parseNumber($pop(this).text()));
-        });
-
-        // Scrape actual candidate photo URLs from <img> elements
-        var candidateImgs = [];
-        card.find('img[src*="/candidates/"]').each(function () {
-            var src = $pop(this).attr('src') || '';
-            if (candidateImgs.indexOf(src) === -1) {
-                candidateImgs.push(src);
-            }
-        });
-
-        var allProfiles = [];
-        card.find('a[href*="/profile/"]').each(function () {
-            var href = $pop(this).attr('href') || '';
-            var name = $pop(this).text().trim();
-            var idMatch = href.match(/\/profile\/(\d+)/);
-            if (idMatch && name.length > 1) {
-                allProfiles.push({ id: idMatch[1], name: name });
-            }
-        });
-
-        // Deduplicate profiles
-        var uniqueProfiles = [];
-        var seenProfileIds = {};
-        for (var pi = 0; pi < allProfiles.length; pi++) {
-            if (!seenProfileIds[allProfiles[pi].id]) {
-                seenProfileIds[allProfiles[pi].id] = true;
-                uniqueProfiles.push(allProfiles[pi]);
-            }
-        }
-
-        var partyNames2 = [];
-        card.find('a[href*="/party/"]').each(function () {
-            var name = $pop(this).text().trim();
-            if (name.length > 1) partyNames2.push(name);
-        });
-
         var candidates = [];
-        for (var j = 0; j < uniqueProfiles.length && j < 3; j++) {
-            var p = uniqueProfiles[j];
+        card.find('.candidate-items').each(function () {
+            var item = $pop(this);
+
+            // Extract Name
+            var nameAnchor = item.find('.candidate-name a').first();
+            var name = nameAnchor.text().trim() || item.find('a[href*="/profile/"]').last().text().trim();
+            if (!name) return;
+
+            // Extract Photo
+            var photoUrl = item.find('img[src*="/candidates/"]').attr('src') || '';
+
+            // Extract Party
+            var partySpan = item.find('.party-image span');
+            var party = partySpan.length ? partySpan.text().trim() : item.find('a[href*="/party/"]').last().text().trim();
+
+            // Extract Votes
+            var votesStr = item.find('.vote-count p').text().trim();
+            var votes = parseInt(votesStr.replace(/,/g, '')) || 0;
+
             candidates.push({
-                name: p.name,
-                party: partyNames2[j] || '',
-                votes: (voteCounts[j + 1] !== undefined) ? voteCounts[j + 1] : 0,
-                photoUrl: candidateImgs[j] || ''
+                name: name,
+                party: party,
+                votes: votes,
+                photoUrl: photoUrl
             });
-        }
+        });
 
         if (candidates.length > 0) {
             data.constituencyResults.push({
