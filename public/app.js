@@ -42,7 +42,6 @@ const PARTY_SHORT = {
 
 let currentData = null;
 let autoRefreshInterval = null;
-let tabRotationInterval = null;
 let idleTimeout = null;
 let userIsActive = false;
 let congratsShown = false;
@@ -154,29 +153,18 @@ function switchTab(tabName) {
     resetIdleTimer();
 }
 
-// ===== Auto Tab Rotation =====
+// ===== Auto Tab Rotation (DISCONTINUED per user request) =====
 function startTabRotation() {
-    if (tabRotationInterval) clearInterval(tabRotationInterval);
-    tabRotationInterval = setInterval(() => {
-        if (userIsActive) return; // Skip if user is interacting
-        const activeTab = document.querySelector('.nav-tab.active');
-        const currentIdx = TAB_NAMES.indexOf(activeTab?.dataset?.tab || 'parties');
-        const nextIdx = (currentIdx + 1) % TAB_NAMES.length;
-        switchTab(TAB_NAMES[nextIdx]);
-    }, 10000);
+    // This feature has been disabled to prevent "annoying" automatic view switches.
 }
 
 function resetIdleTimer() {
-    userIsActive = true;
-    if (idleTimeout) clearTimeout(idleTimeout);
-    idleTimeout = setTimeout(() => {
-        userIsActive = false;
-    }, 10000); // Resume rotation after 10s of inactivity
+    // Keep internal userIsActive tracking for potential future logic, but no auto-triggers.
 }
 
-// Listen for user activity
-['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll'].forEach(evt => {
-    document.addEventListener(evt, resetIdleTimer, { passive: true });
+// User activity listeners
+['mousedown', 'keydown', 'touchstart'].forEach(evt => {
+    document.addEventListener(evt, () => { userIsActive = true; }, { passive: true });
 });
 
 // ===== Render Dashboard =====
@@ -810,7 +798,6 @@ function filterByStatus(status) {
 // ===== Initialize =====
 document.addEventListener('DOMContentLoaded', () => {
     initApp();
-    startTabRotation();
 });
 
 // ===== Interactive 3D Map (ECharts GL) =====
