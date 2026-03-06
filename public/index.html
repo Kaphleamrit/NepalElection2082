@@ -196,21 +196,16 @@
 
         <!-- Navigation Tabs -->
         <div class="nav-tabs" id="mainNavTabs">
-            <button class="nav-tab active" data-tab="parties" onclick="switchTab('parties')">🏛️ Party Results</button>
-            <button class="nav-tab" data-tab="constituencies" onclick="switchTab('constituencies')">⚔️ Constituency
-                Battle</button>
+            <button class="nav-tab active" data-tab="constituencies" onclick="switchTab('constituencies')">⚔️
+                Constituency Battle</button>
+            <button class="nav-tab" data-tab="parties" onclick="switchTab('parties')">🏛️ Party Results</button>
             <button class="nav-tab" data-tab="provinces" onclick="switchTab('provinces')">📈 By Province</button>
             <button class="nav-tab" data-tab="interactive-map" onclick="switchTab('interactive-map')">🗺️ 3D
                 Map</button>
         </div>
 
-        <!-- Tab: Party Results -->
-        <div class="tab-content active" id="tab-parties">
-            <div class="party-grid" id="partyGrid"></div>
-        </div>
-
-        <!-- Tab: Constituency Battle -->
-        <div class="tab-content" id="tab-constituencies">
+        <!-- Tab: Constituency Battle (Default Active) -->
+        <div class="tab-content active" id="tab-constituencies">
             <div class="constituency-controls">
                 <div class="search-box">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -227,6 +222,11 @@
                 </div>
             </div>
             <div class="constituency-grid" id="constituencyGrid"></div>
+        </div>
+
+        <!-- Tab: Party Results -->
+        <div class="tab-content" id="tab-parties">
+            <div class="party-grid" id="partyGrid"></div>
         </div>
 
         <!-- Tab: Province Results -->
