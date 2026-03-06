@@ -870,8 +870,8 @@ async function renderInteractiveMap(data) {
             value: winCount,
             leadingParty: leadingParty,
             itemStyle: {
-                color: leaderColor,
-                opacity: 0.85
+                areaColor: leaderColor,
+                opacity: 0.9
             }
         };
     });
@@ -888,44 +888,41 @@ async function renderInteractiveMap(data) {
                 return `
                     <div style="font-weight:700; font-size:1.1em; margin-bottom:4px;">${params.name} District</div>
                     <div style="font-size:0.9em; display:flex; align-items:center; gap:6px;">
-                        <div style="width:10px;height:10px;border-radius:50%;background:${params.data?.itemStyle?.color}"></div>
-                        Leader: <strong>${PARTY_SHORT[lp] || lp}</strong>
+                        <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${params.data?.itemStyle?.areaColor || '#fff'}"></span>
+                        Leader: <strong style="color: ${params.data?.itemStyle?.areaColor || '#fff'}">${PARTY_SHORT[lp] || lp}</strong>
                     </div>
                 `;
             }
         },
         series: [{
-            type: 'map3D',
+            type: 'map',
             map: 'nepal',
-            shading: 'realistic',
-            realisticMaterial: {
-                roughness: 0.4,
-                metalness: 0.1
-            },
-            light: {
-                main: { intensity: 1.2, shadow: true, shadowQuality: 'high', alpha: 30, beta: 10 },
-                ambient: { intensity: 0.6 }
-            },
+            roam: true,
+            zoom: 1.2,
             itemStyle: {
-                borderColor: 'rgba(255,255,255,0.3)',
-                borderWidth: 0.4
+                borderColor: 'rgba(255,255,255,0.4)',
+                borderWidth: 0.8,
+                areaColor: 'rgba(255,255,255, 0.05)',
+                shadowColor: 'rgba(0, 0, 0, 0.5)',
+                shadowOffsetX: 4,
+                shadowOffsetY: 8,
+                shadowBlur: 10
             },
             emphasis: {
-                label: { show: true, textStyle: { color: '#fff', fontSize: 13, backgroundColor: 'rgba(0,0,0,0.5)', padding: 4, borderRadius: 4 } },
-                itemStyle: { opacity: 1, borderColor: '#fff' }
+                label: { show: true, color: '#fff', fontSize: 13, fontWeight: 'bold' },
+                itemStyle: {
+                    areaColor: '#f8fafc',
+                    borderColor: '#fff',
+                    borderWidth: 2,
+                    shadowColor: 'rgba(255, 255, 255, 0.5)',
+                    shadowBlur: 20
+                }
             },
-            data: mapSeriesData,
-            viewControl: {
-                autoRotate: true,
-                autoRotateSpeed: 4,
-                alpha: 35,
-                beta: -15,
-                distance: 90,
-                minDistance: 40,
-                maxDistance: 140,
-                panMouseButton: 'left',
-                rotateMouseButton: 'right',
-            }
+            select: {
+                label: { show: true, color: '#fff' },
+                itemStyle: { areaColor: '#3b82f6' }
+            },
+            data: mapSeriesData
         }]
     };
 
