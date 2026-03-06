@@ -260,7 +260,7 @@ function renderPartyGrid(data) {
         return `
             <div class="party-card ${isLeading ? 'leading' : ''}" id="party-${party.id}">
                 <img class="party-logo" 
-                     src="${party.symbolUrl}" 
+                     src="${party.symbolUrl ? `/api/proxy-image?url=${encodeURIComponent(party.symbolUrl)}` : ''}" 
                      alt="${party.name}" 
                      onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 40 40%22><rect fill=%22%23222%22 width=%2240%22 height=%2240%22 rx=%224%22/><text x=%2250%%22 y=%2255%%22 text-anchor=%22middle%22 fill=%22%23666%22 font-size=%2212%22>🏛️</text></svg>'">
                 <div class="party-info">

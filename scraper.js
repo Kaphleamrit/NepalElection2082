@@ -36,6 +36,16 @@ async function scrapeElectionData() {
 
     // ---- Party-wise Results ----
     var partyMap = new Map();
+    var partyLogos = {};
+
+    $('img[src*="/parties/"]').each(function () {
+        var src = $(this).attr('src');
+        if (src) {
+            var href = $(this).closest('a').attr('href') || '';
+            var match = href.match(/\/party\/(\d+)/);
+            if (match) partyLogos[match[1]] = src;
+        }
+    });
 
     $('a[href*="/party/"]').each(function () {
         var href = $(this).attr('href') || '';
@@ -50,8 +60,10 @@ async function scrapeElectionData() {
                     name: text,
                     elected: 0,
                     leading: 0,
-                    symbolUrl: 'https://assets-generalelection2082.ekantipur.com/parties/party-' + partyId + '.png'
+                    symbolUrl: partyLogos[partyId] || ''
                 });
+            } else if (!partyMap.get(partyId).symbolUrl && partyLogos[partyId]) {
+                partyMap.get(partyId).symbolUrl = partyLogos[partyId];
             }
         }
 
