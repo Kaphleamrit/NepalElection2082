@@ -1466,3 +1466,45 @@ body {
     clip: rect(0, 0, 0, 0);
     border: 0;
 }
+
+/* ===== Animated Flag & Background Map ===== */
+.animated-flag {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform-origin: left center;
+    animation: wave-flag 3s ease-in-out infinite alternate;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+@keyframes wave-flag {
+    0% {
+        transform: scale(0.9) rotate(0deg) skewY(0deg);
+    }
+
+    100% {
+        transform: scale(0.95) rotate(4deg) skewY(-2deg);
+    }
+}
+
+.nepal-map-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    opacity: 0.12;
+    pointer-events: none;
+    z-index: -1;
+    mask-image: radial-gradient(circle at center 30%, black 10%, transparent 80%);
+    -webkit-mask-image: radial-gradient(circle at center 30%, black 10%, transparent 80%);
+}
+
+.nepal-map-bg img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 30%;
+    mix-blend-mode: luminosity;
+    filter: contrast(120%) brightness(80%);
+}
