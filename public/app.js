@@ -896,18 +896,18 @@ async function renderInteractiveMap(data) {
                 shadowBlur: 10
             },
             emphasis: {
-                label: { show: true, color: '#fff', fontSize: 13, fontWeight: 'bold' },
+                label: { show: true, color: '#fff', fontSize: 13, fontWeight: '500' },
                 itemStyle: {
-                    areaColor: '#f8fafc',
+                    areaColor: 'rgba(255, 255, 255, 0.15)',
                     borderColor: '#fff',
-                    borderWidth: 2,
-                    shadowColor: 'rgba(255, 255, 255, 0.5)',
-                    shadowBlur: 20
+                    borderWidth: 1.5,
+                    shadowBlur: 10,
+                    shadowColor: 'rgba(0, 0, 0, 0.5)'
                 }
             },
             select: {
                 label: { show: true, color: '#fff' },
-                itemStyle: { areaColor: '#3b82f6' }
+                itemStyle: { areaColor: 'rgba(59, 130, 246, 0.8)' }
             },
             data: mapSeriesData
         }]
