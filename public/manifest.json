@@ -1,0 +1,22 @@
+{
+    "name": "Nepal Election 2082 Live Results",
+    "short_name": "Nepal Election",
+    "description": "Live dashboard for Nepal Federal Parliament Election 2082 (2026) results",
+    "start_url": "/?source=pwa",
+    "display": "standalone",
+    "background_color": "#0f0a1a",
+    "theme_color": "#0f0a1a",
+    "orientation": "portrait-primary",
+    "icons": [
+        {
+            "src": "/og-image.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/og-image.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}
