@@ -42,6 +42,10 @@ const PARTY_SHORT = {
 
 let currentData = null;
 let autoRefreshInterval = null;
+let tabRotationInterval = null;
+let idleTimeout = null;
+let userIsActive = false;
+const TAB_NAMES = ['parties', 'constituencies', 'provinces'];
 
 // ===== Data Fetching =====
 async function fetchElectionData() {
@@ -121,7 +125,35 @@ function switchTab(tabName) {
 
     document.querySelector(`.nav-tab[data-tab="${tabName}"]`).classList.add('active');
     document.getElementById(`tab-${tabName}`).classList.add('active');
+
+    // Reset auto-rotation when user manually switches
+    resetIdleTimer();
 }
+
+// ===== Auto Tab Rotation =====
+function startTabRotation() {
+    if (tabRotationInterval) clearInterval(tabRotationInterval);
+    tabRotationInterval = setInterval(() => {
+        if (userIsActive) return; // Skip if user is interacting
+        const activeTab = document.querySelector('.nav-tab.active');
+        const currentIdx = TAB_NAMES.indexOf(activeTab?.dataset?.tab || 'parties');
+        const nextIdx = (currentIdx + 1) % TAB_NAMES.length;
+        switchTab(TAB_NAMES[nextIdx]);
+    }, 10000);
+}
+
+function resetIdleTimer() {
+    userIsActive = true;
+    if (idleTimeout) clearTimeout(idleTimeout);
+    idleTimeout = setTimeout(() => {
+        userIsActive = false;
+    }, 10000); // Resume rotation after 10s of inactivity
+}
+
+// Listen for user activity
+['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll'].forEach(evt => {
+    document.addEventListener(evt, resetIdleTimer, { passive: true });
+});
 
 // ===== Render Dashboard =====
 function renderDashboard(data) {
@@ -406,12 +438,19 @@ function renderProportionalBars(containerId, results, year) {
     });
 }
 
-// ===== Timestamp =====
+// ===== Timestamp (Nepal Time UTC+5:45) =====
 function updateTimestamp(data) {
     const el = document.getElementById('lastUpdated');
     if (data.timestamp) {
         const date = new Date(data.timestamp);
-        el.textContent = `Updated: ${date.toLocaleTimeString()}`;
+        const nepalTime = date.toLocaleString('en-US', {
+            timeZone: 'Asia/Kathmandu',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: true
+        });
+        el.textContent = `Updated: ${nepalTime} NPT`;
     }
 }
 
@@ -558,4 +597,7 @@ function filterByStatus(status) {
 }
 
 // ===== Initialize =====
-document.addEventListener('DOMContentLoaded', initApp);
+document.addEventListener('DOMContentLoaded', () => {
+    initApp();
+    startTabRotation();
+});
