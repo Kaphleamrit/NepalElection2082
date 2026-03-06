@@ -30,7 +30,35 @@ app.get('/api/election-data', async (req, res) => {
     }
 });
 
-// Serve main page
+// Image proxy to bypass CORB
+app.get('/api/proxy-image', async (req, res) => {
+    try {
+        const imageUrl = req.query.url;
+        if (!imageUrl || !imageUrl.startsWith('http')) {
+            return res.status(400).send('Invalid generic URL');
+        }
+
+        const fetch = (await import('node-fetch')).default;
+        const response = await fetch(imageUrl, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Referer': 'https://election.ekantipur.com/'
+            }
+        });
+
+        if (!response.ok) {
+            return res.status(response.status).send('Image fetch failed');
+        }
+
+        const contentType = response.headers.get('content-type');
+        res.setHeader('Content-Type', contentType);
+        res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache for 1 day
+        response.body.pipe(res);
+    } catch (error) {
+        console.error('Image proxy error for ' + req.query.url + ':', error.message);
+        res.status(500).send('Proxy error');
+    }
+});
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });

@@ -527,7 +527,7 @@ function renderConstituencies(data) {
                 <div class="candidate-row" data-candidate="${c.name.toLowerCase()}">
                     <div class="candidate-rank ${idx === 0 && hasVotes ? 'rank-1' : ''}">${idx + 1}</div>
                     <img class="candidate-row-photo" 
-                         src="${c.photoUrl}" 
+                         src="${c.photoUrl ? `/api/proxy-image?url=${encodeURIComponent(c.photoUrl)}` : ''}" 
                          alt="${c.name}"
                          onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><circle fill=%22%23222%22 cx=%2216%22 cy=%2216%22 r=%2216%22/><text x=%2250%%22 y=%2260%%22 text-anchor=%22middle%22 fill=%22%23555%22 font-size=%2212%22>👤</text></svg>'">
                     <div class="candidate-row-info">
