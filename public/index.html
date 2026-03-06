@@ -231,6 +231,22 @@
         </div>
     </main>
 
+    <!-- Congratulations Overlay (Triggered when 165 seats are decided) -->
+    <div class="congrats-overlay" id="congratsOverlay">
+        <!-- Confetti canvas for particles -->
+        <canvas id="confettiCanvas"></canvas>
+        <div class="congrats-content">
+            <h2 class="congrats-title">Election Complete!</h2>
+            <img class="congrats-party-logo" id="congratsPartyLogo" src="" alt="Winning Party">
+            <h3 class="congrats-subtitle">Congratulations to <br><span id="congratsPartyName" class="text-blue"></span>
+            </h3>
+            <p class="congrats-text">For winning the Nepal Federal Parliament Election 2082 (2026 AD) with a majority!
+            </p>
+            <div class="congrats-seats"><span id="congratsSeats">--</span> Seats Won</div>
+            <button class="congrats-close" onclick="closeCongrats()">View Dashboard</button>
+        </div>
+    </div>
+
     <!-- Ultra-rich Hidden SEO Content for search engines -->
     <div class="sr-only" aria-hidden="false">
         <h2>Complete Nepal Election 2082 (नेपाल निर्वाचन २०८२) Live Result Coverage</h2>

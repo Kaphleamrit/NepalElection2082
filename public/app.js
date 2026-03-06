@@ -45,6 +45,7 @@ let autoRefreshInterval = null;
 let tabRotationInterval = null;
 let idleTimeout = null;
 let userIsActive = false;
+let congratsShown = false;
 const TAB_NAMES = ['parties', 'constituencies', 'provinces'];
 
 // ===== Data Fetching =====
@@ -188,6 +189,8 @@ function renderHeroStats(data) {
     document.getElementById('leadingPartyName').textContent =
         PARTY_SHORT[leadingParty.name] || leadingParty.name;
     document.getElementById('totalPartiesCount').textContent = data.totalParties || 67;
+
+    checkWinner(totalElected + totalLeading, leadingParty);
 }
 
 // ===== Seat Distribution Bar =====
@@ -244,6 +247,98 @@ function renderSeatDistribution(data) {
     container.innerHTML = html;
     legend.innerHTML = legendHtml;
 }
+
+// ===== Winner Celebration & Confetti =====
+function checkWinner(totalSeatsDecided, leadingParty) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const forceShow = urlParams.get('demo_winner') === 'true';
+
+    // By default, triggers only if all 165 FPTP seats have been won or led
+    if (!congratsShown && (totalSeatsDecided >= 165 || forceShow)) {
+        congratsShown = true;
+        showCongratsOverlay(leadingParty);
+    }
+}
+
+function showCongratsOverlay(party) {
+    const overlay = document.getElementById('congratsOverlay');
+    document.getElementById('congratsPartyName').textContent = party.name || 'A Party';
+    document.getElementById('congratsSeats').textContent = (party.elected || 0) + (party.leading || 0);
+    document.getElementById('congratsPartyLogo').src = party.symbolUrl ? `/api/proxy-image?url=${encodeURIComponent(party.symbolUrl)}` : '';
+
+    // Add glowing color based on party
+    const color = PARTY_COLORS[party.name] || '#3b82f6';
+    document.getElementById('congratsPartyName').style.textShadow = `0 0 20px ${color}88`; // 88 for alpha
+    document.getElementById('congratsPartyLogo').style.boxShadow = `0 0 50px ${color}aa`;
+
+    overlay.classList.add('show');
+    startConfetti();
+}
+
+function closeCongrats() {
+    document.getElementById('congratsOverlay').classList.remove('show');
+    // We leave confetti running faintly in the background, or could clear it
+}
+
+// Simple Canvas Confetti
+let confettiCtx;
+let confettiParticles = [];
+let confettiFrameId;
+
+function startConfetti() {
+    const canvas = document.getElementById('confettiCanvas');
+    if (!canvas) return;
+    confettiCtx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const colors = ['#3b82f6', '#10b981', '#ef4444', '#f59e0b', '#8b5cf6', '#ffffff'];
+    for (let i = 0; i < 150; i++) {
+        confettiParticles.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height - canvas.height,
+            w: Math.random() * 10 + 5,
+            h: Math.random() * 15 + 5,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            speed: Math.random() * 4 + 2,
+            angle: Math.random() * 360,
+            spin: Math.random() * 0.2 - 0.1
+        });
+    }
+    renderConfetti();
+}
+
+function renderConfetti() {
+    const canvas = document.getElementById('confettiCanvas');
+    if (!confettiCtx) return;
+    confettiCtx.clearRect(0, 0, canvas.width, canvas.height);
+
+    for (let i = 0; i < confettiParticles.length; i++) {
+        let p = confettiParticles[i];
+        p.y += p.speed;
+        p.angle += p.spin;
+        if (p.y > canvas.height) {
+            p.y = -10;
+            p.x = Math.random() * canvas.width;
+        }
+
+        confettiCtx.save();
+        confettiCtx.translate(p.x, p.y);
+        confettiCtx.rotate(p.angle);
+        confettiCtx.fillStyle = p.color;
+        confettiCtx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        confettiCtx.restore();
+    }
+    confettiFrameId = requestAnimationFrame(renderConfetti);
+}
+
+window.addEventListener('resize', () => {
+    const canvas = document.getElementById('confettiCanvas');
+    if (canvas && confettiCtx) {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+});
 
 // ===== Party Grid =====
 function renderPartyGrid(data) {
