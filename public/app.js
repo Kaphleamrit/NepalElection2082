@@ -46,8 +46,11 @@ let tabRotationInterval = null;
 let idleTimeout = null;
 let userIsActive = false;
 let congratsShown = false;
-const TAB_NAMES = ['parties', 'constituencies', 'provinces', 'interactive-map'];
+const TAB_NAMES = ['constituencies', 'parties', 'provinces', 'interactive-map'];
 let echarts3DMap = null;
+let provinceChart = null;
+let currentProvincesData = {};
+let currentActiveProvince = '';
 let geoJsonData = null;
 
 // ===== Data Fetching =====
@@ -134,8 +137,17 @@ function switchTab(tabName) {
 
     // Handle Echarts canvas resize trigger when shown
     if (tabName === 'interactive-map') {
-        if (echarts3DMap) echarts3DMap.resize();
-        if (currentData) renderInteractiveMap(currentData);
+        setTimeout(() => {
+            if (echarts3DMap) echarts3DMap.resize();
+            if (currentData) renderInteractiveMap(currentData);
+        }, 50);
+    }
+
+    if (tabName === 'provinces') {
+        setTimeout(() => {
+            if (provinceChart) provinceChart.resize();
+            if (currentActiveProvince) updateProvinceChart(currentActiveProvince);
+        }, 50);
     }
 
     // Reset auto-rotation when user manually switches
@@ -169,6 +181,7 @@ function resetIdleTimer() {
 
 // ===== Render Dashboard =====
 function renderDashboard(data) {
+    currentData = data;
     renderHeroStats(data);
     renderSeatDistribution(data);
     renderPartyGrid(data);
@@ -179,6 +192,10 @@ function renderDashboard(data) {
     // Update map silently if already active
     if (document.getElementById('tab-interactive-map').classList.contains('active')) {
         renderInteractiveMap(data);
+    }
+    // Update province chart if active
+    if (document.getElementById('tab-provinces').classList.contains('active') && currentActiveProvince) {
+        updateProvinceChart(currentActiveProvince);
     }
 }
 
@@ -435,11 +452,30 @@ function renderProvinces(data) {
     const tabsContainer = document.getElementById('provinceTabs');
     const contentsContainer = document.getElementById('provinceContents');
     const provinces = data.provinceResults || {};
+    currentProvincesData = provinces;
     const provinceNames = Object.keys(provinces);
 
+    if (!currentActiveProvince && provinceNames.length > 0) {
+        currentActiveProvince = provinceNames[0];
+    }
+
+    // Inject global Province Chart container exactly once
+    if (!document.getElementById('globalProvinceChart')) {
+        const chartWrapper = document.createElement('div');
+        chartWrapper.id = 'globalProvinceChart';
+        chartWrapper.style.width = '100%';
+        chartWrapper.style.height = '350px';
+        chartWrapper.style.marginBottom = '25px';
+        chartWrapper.style.background = 'rgba(0,0,0,0.15)';
+        chartWrapper.style.borderRadius = '16px';
+        chartWrapper.style.padding = '15px';
+        chartWrapper.style.border = '1px solid rgba(255,255,255,0.05)';
+        document.getElementById('provinceTabs').after(chartWrapper);
+    }
+
     // Render tabs
-    tabsContainer.innerHTML = provinceNames.map((name, i) => `
-        <button class="province-tab ${i === 0 ? 'active' : ''}" 
+    tabsContainer.innerHTML = provinceNames.map((name) => `
+        <button class="province-tab ${name === currentActiveProvince ? 'active' : ''}" 
                 onclick="switchProvince('${name}')"
                 data-province="${name}">
             ${name}
@@ -447,7 +483,7 @@ function renderProvinces(data) {
     `).join('');
 
     // Render contents
-    contentsContainer.innerHTML = provinceNames.map((name, i) => {
+    contentsContainer.innerHTML = provinceNames.map((name) => {
         const parties = provinces[name] || [];
 
         let tableRows = '';
@@ -473,7 +509,7 @@ function renderProvinces(data) {
         }
 
         return `
-            <div class="province-content ${i === 0 ? 'active' : ''}" id="province-${name}">
+            <div class="province-content ${name === currentActiveProvince ? 'active' : ''}" id="province-${name}">
                 <table class="province-table">
                     <thead>
                         <tr>
@@ -491,11 +527,75 @@ function renderProvinces(data) {
 }
 
 function switchProvince(name) {
+    currentActiveProvince = name;
     document.querySelectorAll('.province-tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.province-content').forEach(t => t.classList.remove('active'));
 
     document.querySelector(`.province-tab[data-province="${name}"]`).classList.add('active');
     document.getElementById(`province-${name}`).classList.add('active');
+
+    updateProvinceChart(name);
+}
+
+function updateProvinceChart(name) {
+    const chartDiv = document.getElementById('globalProvinceChart');
+    if (!chartDiv || !window.echarts) return;
+
+    if (!provinceChart) {
+        provinceChart = echarts.init(chartDiv);
+        window.addEventListener('resize', () => { if (provinceChart) provinceChart.resize(); });
+    }
+
+    const parties = currentProvincesData[name] || [];
+    if (parties.length === 0) {
+        provinceChart.clear();
+        return;
+    }
+
+    // Top 8 parties to keep chart clean, sorted descending so horizontal shows largest at top
+    const sliced = parties.slice(0, 8).reverse();
+
+    const labels = sliced.map(p => PARTY_SHORT[p.name] || p.name);
+    const electedData = sliced.map(p => ({
+        value: p.elected,
+        itemStyle: { color: PARTY_COLORS[p.name] || '#3b82f6', borderRadius: [0, 4, 4, 0] }
+    }));
+    const leadingData = sliced.map(p => ({
+        value: p.leading,
+        itemStyle: {
+            color: 'rgba(255,255,255,0.1)',
+            borderColor: PARTY_COLORS[p.name] || '#3b82f6',
+            borderWidth: 1.5,
+            borderType: 'dashed',
+            borderRadius: [0, 4, 4, 0]
+        }
+    }));
+
+    provinceChart.setOption({
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: { type: 'shadow' },
+            backgroundColor: 'rgba(10, 14, 26, 0.9)',
+            borderColor: 'rgba(255,255,255,0.1)',
+            textStyle: { color: '#fff', fontFamily: 'Outfit' }
+        },
+        grid: { left: '3%', right: '6%', bottom: '5%', top: '5%', containLabel: true },
+        xAxis: {
+            type: 'value',
+            splitLine: { lineStyle: { color: 'rgba(255,255,255,0.05)', type: 'dashed' } },
+            axisLabel: { color: '#94a3b8', fontFamily: 'Outfit' }
+        },
+        yAxis: {
+            type: 'category',
+            data: labels,
+            axisLabel: { color: '#f1f5f9', fontWeight: 600, fontFamily: 'Outfit', fontSize: 13 },
+            axisLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } }
+        },
+        series: [
+            { name: 'Elected', type: 'bar', stack: 'total', data: electedData, label: { show: true, position: 'inside', color: '#fff', fontWeight: 600, formatter: (p) => p.value > 0 ? p.value : '' } },
+            { name: 'Leading', type: 'bar', stack: 'total', data: leadingData, label: { show: true, position: 'right', color: '#a5b4fc', fontWeight: 600, formatter: (p) => p.value > 0 ? `+${p.value}` : '' } }
+        ]
+    }, true);
 }
 
 // ===== Proportional Results =====
